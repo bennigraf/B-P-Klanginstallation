@@ -59,6 +59,7 @@ Storm {
 		this.state = "running";
 		
 		run = Task({
+			var flash, flashRamp, flashBus;
 			
 			// 1. Fade in rain for 120 sec or so...
 			this.setupRain();
@@ -72,13 +73,24 @@ Storm {
 			this.setupBrrr();
 			this.brrrRamp = {
 				var ampRamp, upperRamp;
-				ampRamp = EnvGen.kr(Env([0, 1, 1, 0.7, 0.7, 0]/2, [60, 60, 60, 120, 120] * runtimemod), doneAction: 2);
+				ampRamp = EnvGen.kr(Env([0, 1, 1, 0.7, 0.7, 0]/4, [60, 60, 60, 120, 120] * runtimemod), doneAction: 2);
 				Out.kr(this.brrrAmp, ampRamp);
 				upperRamp = EnvGen.kr(Env([200, 893, 388, 283], [120, 60, 180] * runtimemod));
 				Out.kr(this.brrrUpper, upperRamp);
 			}.play;
 			
-			(480*runtimemod).wait;
+			(60 * runtimemod).wait;
+			
+			flashBus = Bus.control(Server.default, 1);
+			flash = Synth(\flash, [\flashness, 0, \channels, this.channels, \amp, 1]).play.map(\flashness, flashBus);
+			flashRamp = {
+				var ramp = EnvGen.kr(Env([0, 0.4, 0], [60, 120] * runtimemod), doneAction: 2);
+				Out.kr(flashBus, ramp);
+			}.play;
+			(180 * runtimemod).wait;
+			flash.free; flashBus.free;
+			
+			(240*runtimemod).wait;
 			this.stop;
 			
 		}).play; // Yay!
@@ -105,7 +117,7 @@ Storm {
 	setupRain {
 		if(this.rainSdefs.size == 0) {
 			this.channels.do{ |n|
-				8.do{ |o|
+				12.do{ |o|
 					this.rainSdefs.add(Synth(\rain, [\out, n, \quantbus, this.rainquantbus]).play );
 				}
 			};
@@ -185,15 +197,29 @@ Storm {
 			Out.ar(out, snd*amp);
 		}).add;
 		
-		SynthDef(\brrr, { |out=0, upperlimit = 200, amp = 0.5|
+		SynthDef(\brrr, { |out=0, upperlimit = 200, amp = 0.5, flashness = 0.1|
 			var snd = BrownNoise.ar();
-			snd = snd * Decay2.ar({Dust.ar(LFNoise0.kr(13).range(1, 100))}!2, 0.05, 0.5);
-			snd = RLPF.ar(snd, LFNoise0.kr(13).range(100, upperlimit), 0.8);		// note: RLPF takes q as 3rd arg
-			snd = Compander.ar(snd, snd, 0.7, 1, 1/3, 10, 10);		// In, Ctrl, Thresh, Below, Above, Attack, Release
+			snd = snd * Decay2.ar(Dust.ar(LFNoise0.kr(13).range(1, 100)), 0.05, 0.5);
+			snd = RLPF.ar(snd, LFNoise0.kr(13).range(100, upperlimit), 0.8);
+			snd = Compander.ar(snd, snd, 0.7, 1, 1/3, 10, 10) * 0.3;				// In, Ctrl, Thresh, Below, Above, Attack, Release
 			snd = snd.softclip * 0.4;
-			FreeVerb.ar(snd, 0.45, 8, 0.4);		// Mix, Room, Damp
-			Out.ar(0, snd * amp);
+			snd = FreeVerb.ar(snd, 0.45, 8, 0.4);		// Mix, Room, Damp
+			Out.ar(out, snd * amp);
 		//	Out.ar(~revbus, snd * 0.5 * ~bus[30].kr);
+		}).add; 
+		
+		SynthDef(\flash, { |out = 0, amp = 0.5, flashness = 0.1, channels = 8|
+			var snd, flashes;
+			var flashTrig = Dust.kr(flashness);
+			var flashDecay = Decay2.kr(flashTrig, 0.08, 0.95);
+			var flashshsh = Latch.kr(WhiteNoise.kr, flashTrig).range(7000, 13000);
+			snd = BrownNoise.ar() * Decay2.ar(Dust.ar(LFNoise0.kr(13).range(1, 100)), 0.05, 0.5);
+			flashes = RLPF.ar(snd, flashDecay.linlin(0, 1, 1000, flashshsh),  // freq
+					flashDecay.linlin(0,1,0.1,2.8), // rq
+					mul: Decay2.kr(flashTrig, 0.05, 1) * 2 // envelope
+				);
+			flashes = flashes.softclip;
+			Out.ar(Latch.kr(WhiteNoise.kr, flashTrig).range(0, channels-1).round, flashes * amp);
 		}).add;
 	}
 	
