@@ -46,14 +46,21 @@ s.boot;
 
 Task{ inf.do{ a.next.postln; 1.wait; } }
 ~channels = 2;
+
+
 ~rain = Rain(2)
-~rain.getBusvalue.postln
 
 ~rain.debug("on")
 ~rain.debug("off")
-~rain.run(3, 5, 13);
+~rain.run(0.01);
 ~rain.start(10)
 ~rain.end(3);
+
+
+
+~storm = Storm(2);
+
+~storm.run(0.1)
 
 
 ~test = false
@@ -74,3 +81,29 @@ nil.if
 
 ~a = ~b = 13
 ~b
+
+
+//////////////// Testing Storm-brrr ///////////////////
+(
+SynthDef(\brrr, { |out=0, upperlimit = 400, amp = 0.5|
+	var snd = BrownNoise.ar();
+	snd = snd * Decay2.ar({Dust.ar(LFNoise0.kr(13).range(1, 100))}!2, 0.05, 0.5);
+	snd = RLPF.ar(snd, LFNoise0.kr(13).range(100, upperlimit), 0.8);		// note: RLPF takes q as 3rd arg
+	snd = Compander.ar(snd, snd, 0.7, 1, 1/3, 10, 10);		// In, Ctrl, Thresh, Below, Above, Attack, Release
+	snd = snd.softclip * 0.4;
+	FreeVerb.ar(snd, 0.45, 8, 0.4);		// Mix, Room, Damp
+	Out.ar(0, snd * amp);
+//	Out.ar(~revbus, snd * 0.5 * ~bus[30].kr);
+}).add;
+)
+~brr = Synth(\brrr);
+
+
+~a = ~b = List()
+~a.size
+~b
+~a.add(~a.add(3))
+
+~a.do{ |n|
+	n.postln;
+}
