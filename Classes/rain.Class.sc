@@ -40,7 +40,7 @@ Rain {
 	/*
 	 * Main routine. Runs rain once depending on given or default times.
 	 */
-	run { |runtime = 0, starttime = 0, sustime = 0, endtime = 0|
+	run { |runtime = 0, starttime = 0, sustime = 0, endtime = 0, runtimemod = 1|
 		var run; // Task
 		
 		// set times if given, otherwise just use defaults.
@@ -55,14 +55,16 @@ Rain {
 		};
 		
 		run = Task({
-			this.start(this.starttime);
-			this.starttime.wait;
+			this.start(this.starttime * runtimemod);
+			(this.starttime * runtimemod).wait;
 				// sustain-mode starts automatically after start
-			this.sustime.wait;
-			this.end(this.endtime);
+			(this.sustime * runtimemod).wait;
+			this.end(this.endtime * runtimemod);
 				// .end cleans up automatically
 		});
 		run.play; // Yay!
+		
+		^(this.getRuntime * runtimemod);
 	}
 	
 	// Stop the whole thing immediatly
