@@ -1,8 +1,8 @@
 
-var rain = "/Users/bennigraf/Documents/Musik/Supercollider/memyselfandi/bp/Brodukt/scenes/proto.sc".load;
+var scene = "/Users/bennigraf/Documents/Musik/Supercollider/memyselfandi/bp/Brodukt/scenes/proto.sc".load;
 /*var rain = ~proto.deepCopy;*/
 
-rain.bootUp = { |self|
+scene.bootUp = { |self|
 	// set up busses, helper-sdefs, ... here
 	
 /*	Routine({*/
@@ -29,7 +29,7 @@ rain.bootUp = { |self|
 		self.bootedUp.unhang;
 /*	}).play;*/
 };
-rain.haltSelf = { |self|
+scene.haltSelf = { |self|
 	while({self.sdefs.size > 0}, {
 		self.sdefs.pop.free;
 	});
@@ -43,7 +43,7 @@ rain.haltSelf = { |self|
 };
 
 
-rain.run = { |self, runtime = nil, runtimemod = 1|
+scene.run = { |self, runtime = nil, runtimemod = 1|
 	
 	if(runtime.isNil.not) {
 		self.runtime = runtime;
@@ -74,7 +74,7 @@ rain.run = { |self, runtime = nil, runtimemod = 1|
 	(self.runtime * (self.starttime + self.sustime) * runtimemod);
 };
 
-rain.start = {|self, runtime = 120, runtimemod = 1|
+scene.start = {|self, runtime = 120, runtimemod = 1|
 	
 	self.starter = Task({
 		self.startRamp = ();
@@ -89,7 +89,7 @@ rain.start = {|self, runtime = 120, runtimemod = 1|
 	
 };
 
-rain.end = { |self, runtime = 0, runtimemod = 1|
+scene.end = { |self, runtime = nil, runtimemod = 1|
 	if(runtime.isNil) {
 		runtime = self.runtime * self.endtime * runtimemod;
 	};
@@ -108,7 +108,7 @@ rain.end = { |self, runtime = 0, runtimemod = 1|
 	}).play;
 };
 
-rain.loadSdefs = {
+scene.loadSdefs = {
 	SynthDef(\rain, { |out = 0, amp = 1, freq = 1200, rq = 0.8, intensity = 1|
 		var snd, trig, filtfreq, distmod;
 		trig = Dust.ar(intensity);

@@ -1,23 +1,22 @@
 
 /*
 // testing
-~proto = (~basepath++"./scenes/proto.sc").load;
 (
 ~proto = (~basepath++"./scenes/proto.sc").load;
-~rain = nil;
+~storm = nil;
 Routine({
 	var waittime;
-	~rain = (~basepath++"scenes/rain.sc").load;
-	~rain.init();
-	~rain.bootedUp.wait;
-	waittime = ~rain.run(nil, 0.05).postln;
+	~storm = (~basepath++"scenes/storm.sc").load;
+	~storm.init(2);
+	~storm.bootedUp.wait;
+	waittime = ~storm.run(nil, 0.05).postln;
 	waittime.wait;
-	~rain.end(nil, 0.05);
+	~storm.end(nil, 0.05);
 }).play;
 );
-~rain.state
-~rain.busses.intensity.get()
-~rain.busses.amp.get()
+~storm.state
+~storm.busses.flash.amp.get()
+~storm.busses.brrr.amp.get()
 // /testing
 */
 
@@ -28,9 +27,9 @@ Routine({
 ~states = Pfsm([
 	#[0],		// initial state
 // State 0: Rain
-	\rain, #[0],
+	\rain, #[0, 1],
 // State 1:
-/*	\storm, #[0],*/
+	\storm, #[0],
 ]).asStream;
 
 )
@@ -38,19 +37,21 @@ Routine({
 (
 ~scenes = Dictionary();
 ~scenes.put(\rain, "rain");
-/*~scenes.put(\storm, "storm");*/
+~scenes.put(\storm, "storm");
 ) 
 (
 ~runner = Task({
-	var runtimemod = 0.1;
+	var runtimemod = 0.05;
+	var channels = 2;
 	var currentScene = nil, lastScene = nil;
 	inf.do{
 		var state = ~states.next;
 		var ttl, lastSceneEnding = 0;
 		
 		currentScene = (~basepath++"scenes/"++~scenes[state.asSymbol]++".sc").load;
-		currentScene.init(8);
+		currentScene.init(channels);
 		currentScene.bootedUp.wait;
+		
 		if(lastScene.isNil.not) {
 			if(currentScene.getStartingTime(runtimemod) < lastScene.getEndingTime(runtimemod)) {
 				(lastScene.getEndingTime(runtimemod) - currentScene.getStartingTime(runtimemod)).wait;

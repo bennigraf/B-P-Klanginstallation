@@ -48,7 +48,7 @@ proto.loadSdefs = nil;
 proto.bootUp = nil;
 
 proto.run = { |self, runtime, runtimemod = 1|
-	^(runtime * runtimemod);
+	(runtime * runtimemod);
 };
 
 proto.end = {
@@ -64,5 +64,4 @@ proto.getSusTime = { |self, runtimemod = 1|
 proto.getEndingTime = { |self, runtimemod = 1|
 	var endingtime = (proto.runtime * proto.endtime * runtimemod);
 	endingtime;
-/*	^endingtime;*/
 };
