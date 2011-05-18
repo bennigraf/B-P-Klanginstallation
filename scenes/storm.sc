@@ -2,6 +2,12 @@
 var scene = "/Users/bennigraf/Documents/Musik/Supercollider/memyselfandi/bp/Brodukt/scenes/proto.sc".load;
 /*var rain = ~proto.deepCopy;*/
 
+// META
+scene.vol.rain = 0.7;
+scene.vol.brrr = 0.6;
+scene.vol.flashes = 1;
+
+
 scene.bootUp = { |self|
 	// set up busses, helper-sdefs, ... here
 	
@@ -190,7 +196,7 @@ scene.loadSdefs = {
 		snd = BPF.ar(snd, [filtfreq/2, filtfreq, filtfreq*2], [0.2, 2.5, 0.3], mul: [0.5, 1, 0.3]).sum;
 		snd = snd * distmod;
 	//	snd = GVerb.ar(snd, 20, 0.3, 0.8);
-		Out.ar(out, snd*amp);
+		Out.ar(out, snd*amp * scene.vol.rain);
 	}).add;
 	
 	SynthDef(\brrr, { |out=0, upperlimit = 200, amp = 0.5|
@@ -200,7 +206,7 @@ scene.loadSdefs = {
 		snd = Compander.ar(snd, snd, 0.7, 1, 1/3, 10, 10) * 0.3;				// In, Ctrl, Thresh, Below, Above, Attack, Release
 		snd = snd.softclip * 0.4;
 		snd = FreeVerb.ar(snd, 0.45, 8, 0.4);		// Mix, Room, Damp
-		Out.ar(out, snd * amp);
+		Out.ar(out, snd * amp * scene.vol.brrr);
 	}).add; 
 	
 	SynthDef(\flash, { |amp = 0.5, flashness = 0.1, channels = 8|
@@ -214,7 +220,7 @@ scene.loadSdefs = {
 				mul: Decay2.kr(flashTrig, 0.05, 1) * 2 // envelope
 			);
 		flashes = flashes.softclip;
-		Out.ar(Latch.kr(WhiteNoise.kr, flashTrig).range(0, channels-1).round, flashes * amp);
+		Out.ar(Latch.kr(WhiteNoise.kr, flashTrig).range(0, channels-1).round, flashes * amp * scene.vol.flashes);
 	}).add;
 }
 

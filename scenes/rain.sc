@@ -2,6 +2,9 @@
 var scene = "/Users/bennigraf/Documents/Musik/Supercollider/memyselfandi/bp/Brodukt/scenes/proto.sc".load;
 /*var rain = ~proto.deepCopy;*/
 
+// META
+scene.vol.rain = 0.7;
+
 scene.bootUp = { |self|
 	// set up busses, helper-sdefs, ... here
 	
@@ -118,7 +121,7 @@ scene.loadSdefs = {
 		snd = BPF.ar(snd, [filtfreq/2, filtfreq, filtfreq*2], [0.2, 2.5, 0.3], mul: [0.5, 1, 0.3]).sum;
 		snd = snd * distmod;
 	//	snd = GVerb.ar(snd, 20, 0.3, 0.8);
-		Out.ar(out, snd*amp);
+		Out.ar(out, snd*amp * scene.vol.rain);
 	}).add;
 }
 

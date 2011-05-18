@@ -9,6 +9,24 @@ proto.starttime = 2/7;	// multipliers for runtime... Routine
 proto.sustime = 3/7;
 proto.endtime = 2/7;
 
+/* TODO: Implement some kind of global volume controlling later...
+proto.vol = ();
+proto.vol.global = 1;
+proto.vol.voices = ();
+proto.vol.set = { |self|
+	self.vol.voices.keyValuesDo { |voice, vol|
+		
+	};
+};
+proto.vol.addVoice{ |self, name, vol| 
+	self.vol.voices.put(name.asSymbol, vol);
+};
+*/
+// until then, use this:
+proto.vol = ();
+proto.vol.global = 1;
+//proto.vol.voice1 = 0.3;proto.vol.voice2 = 0.8; etc.pp.
+
 proto.state = nil;
 proto.bootedUp = Condition(false);
 
