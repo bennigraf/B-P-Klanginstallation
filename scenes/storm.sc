@@ -220,6 +220,7 @@ scene.loadSdefs = {
 				mul: Decay2.kr(flashTrig, 0.05, 1) * 2 // envelope
 			);
 		flashes = flashes.softclip;
+		flashes = flashes + FreeVerb.ar(flashes, 1, 8, 0.8, mul: 0.8);
 		Out.ar(Latch.kr(WhiteNoise.kr, flashTrig).range(0, channels-1).round, flashes * amp * scene.vol.flashes);
 	}).add;
 }

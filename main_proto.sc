@@ -31,9 +31,9 @@ Routine({
 // State 0: Rain
 	\rain, #[0, 1, 2],
 // State 1:
-	\storm, #[0],
+	\storm, #[0, 2],
 // State 2:
-	\erm, #[0]
+	\erm, #[0, 1]
 ]).asStream;
 
 )
