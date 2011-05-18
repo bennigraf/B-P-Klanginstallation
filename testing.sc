@@ -125,3 +125,38 @@ nil.if
 ~a.do{ |n|
 	n.postln;
 }
+
+///////////////////////
+proto.vol = ();
+proto.vol.global = 1;
+proto.vol.voices = ();
+proto.vol.set = { |self|
+	self.vol.voices.do { |voice|
+		
+	};
+};
+proto.vol.addVoice{ |self, name, vol| 
+	self.vol.voices.put(name.asSymbol, vol);
+};
+
+
+~vol = ();
+~vol.voices = ();
+~vol.voices.put(\testvol3, 8)
+
+~vol.voices.do { |voice|
+	voice.postln;
+}
+
+~test = false
+t = Task({
+	{~test}.while{
+		1.wait;
+		"bla".postln;
+	}
+}).play;
+t
+t.shit
+
+~buff = Buffer.alloc(s, 44100)
+~buff

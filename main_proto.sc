@@ -3,18 +3,20 @@
 // testing
 (
 ~proto = (~basepath++"./scenes/proto.sc").load;
-~storm = nil;
+~erm = nil;
 Routine({
 	var waittime;
-	~storm = (~basepath++"scenes/storm.sc").load;
-	~storm.init(2);
-	~storm.bootedUp.wait;
-	waittime = ~storm.run(nil, 0.05).postln;
+	~erm.haltSelf;
+	~erm = (~basepath++"scenes/erm.sc").load;
+	~erm.init(2);
+	~erm.bootedUp.wait;
+	~erm.run(nil, 0.5);
+	waittime = ~erm.run(nil, 0.05).postln;
 	waittime.wait;
-	~storm.end(nil, 0.05);
+	~erm.end(nil, 0.5);
 }).play;
 );
-~storm.state
+~erm.buffers
 ~storm.busses.flash.amp.get()
 ~storm.busses.brrr.amp.get()
 // /testing
@@ -27,9 +29,11 @@ Routine({
 ~states = Pfsm([
 	#[0],		// initial state
 // State 0: Rain
-	\rain, #[0, 1],
+	\rain, #[0, 1, 2],
 // State 1:
 	\storm, #[0],
+// State 2:
+	\erm, #[0]
 ]).asStream;
 
 )
@@ -38,11 +42,12 @@ Routine({
 ~scenes = Dictionary();
 ~scenes.put(\rain, "rain");
 ~scenes.put(\storm, "storm");
+~scenes.put(\erm, "erm");
 ) 
 (
 ~runner = Task({
 	var runtimemod = 0.05;
-	var channels = 2;
+	var channels = 10;
 	var currentScene = nil, lastScene = nil;
 	inf.do{
 		var state = ~states.next;
