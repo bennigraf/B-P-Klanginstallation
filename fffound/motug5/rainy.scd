@@ -91,11 +91,11 @@ SynthDef(\ding, { |out, amp, freq, freq2|
 	snd = GVerb.ar(snd+snd2, 160, 50, 0.8).sum;
 	snd = Compander.ar(snd, snd, 0.5, 1, 1/6, 0.041, 20) * 2;
 	combTime = Rand(0.5, 1.5);
-	combSnd = BufCombL.ar(~combBuf, snd, combTime, 10);
+	combSnd = BufCombL.ar(~combBuf, LPF.ar(snd, 1549), combTime, 10);
 	snd = Compander.ar(snd, snd, 0.5, 1, 1/6, 0.041, 20) * 2;
 	DetectSilence.ar(snd, 0.1, 5, doneAction:2);
-	Out.ar(Latch.kr(WhiteNoise.kr, Impulse.kr(1/combTime)).range(0, 1).round.poll, combSnd * amp);
-	Out.ar(Rand(0,1), snd*amp);
+	Out.ar(Latch.kr(WhiteNoise.kr, Impulse.kr(1/combTime)).range(0, 23).round.poll, combSnd * amp);
+	Out.ar(Rand(0,23), snd*amp);
 }).add;
 
 
@@ -109,7 +109,7 @@ p = Pbind(
 	\freq, Pxrand([200,400,600,800,1000,1600,2000,],inf),
 	\freq2, Pxrand([300,500,700,900,1100,1300,1900,],inf),
 	\dur, Pwhite(8, 18),
-	\amp, Prand([0.2,0.4,0.6,0.9], inf),
+	\amp, Prand([0.2,0.4,0.6,0.9]/2, inf),
 	\octave, 4
 	).play
 	
