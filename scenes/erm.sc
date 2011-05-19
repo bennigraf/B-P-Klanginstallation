@@ -21,10 +21,11 @@ scene.bootUp = { |self|
 		self.buffers.erms.add(Buffer.read(s, file.fullPath));
 		self.server.sync;
 	};
-	
+	self.buffers.silence = Buffer.read(s, ~basepath++"data/erm/silence.aif");
+	self.server.sync;
 	
 	// init synth-defs that are actually playing...
-	self.pfiff = Synth(\pfiff, [\amp, 0]);
+	self.pfiff = Synth(\pfiff, [\amp, 0, \buf, self.buffers.silence]);
 
 	// init controlling buses
 	self.busses = ();
@@ -148,9 +149,10 @@ scene.loadSdefs = { |self|
 	SynthDef(\pfiff, { |buf, amp = 0|
 		var c = self.channels;
 		var pointer = {Ramp.ar(Latch.ar(WhiteNoise.ar(0.5, 0.5), Dust.kr(1/5)), 5)}!c;
-		var snd = Warp1.ar(1, ~buffer, pointer, 1, 0.1, -1, 8, 0.3, 2);
+		var snd = Warp1.ar(1, buf, pointer, 1, 0.1, -1, 8, 0.3, 2);
 		var modenv = LFSaw.ar(1/30, 1, 0.5, 0.5).lag(0.01);
-		var ringfreqs = {LFNoise0.kr(1/30).range(900, 1900)}!c;
+/*		var ringfreqs = {LFNoise0.kr(1/30).range(900, 1900)}!c;*/
+		var ringfreqs = { Line.kr(900, 1900, self.runtime) }!c;
 		var freqmods = { LFNoise0.kr(1/30, mul: modenv**4).range(0.7, 1.3) + LFNoise1.kr(1, mul:modenv).range(0.95, 1.05)}!c;
 		snd = Ringz.ar(snd, ringfreqs * freqmods, 0.5, mul: {Decay.ar(Dust.ar(20), 0.5)}!c, add: snd * 80)/10;
 		Out.ar(0, snd * amp);

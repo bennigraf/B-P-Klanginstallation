@@ -33,17 +33,15 @@ proto.bootedUp = Condition(false);
 proto.init = { |self, channels = nil|
 	Routine({
 		if(self.server.serverRunning.not){
-			"Booting Server first, give me a second!".postln;
 			self.server.bootSync;
 		};
 	
 		// set up synthdefs, busses
 	//	Server.default.waitForBoot({}); // used bootsync above instead...
-	
 		if(channels.isNil.not) {
 			self.channels = channels;
 		};
-	
+		
 		self.loadSdefs();
 		self.server.sync;
 		

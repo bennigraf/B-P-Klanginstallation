@@ -4,7 +4,7 @@ var scene = "/Users/bennigraf/Documents/Musik/Supercollider/memyselfandi/bp/Brod
 
 // META
 scene.vol.rain = 0.7;
-scene.vol.brrr = 0.6;
+scene.vol.brrr = 0.7;
 scene.vol.flashes = 1;
 
 
@@ -196,6 +196,7 @@ scene.loadSdefs = {
 		filtfreq = distmod.linexp(0.2, 1, 520, 2390);
 /*		snd = BPF.ar(snd, [filtfreq/2, filtfreq, filtfreq*2], [0.2, 2.5, 0.3], mul: [0.5, 1, 0.3]).sum;*/
 		snd = snd * distmod;
+		snd = LPF.ar(snd, 3400);
 	//	snd = GVerb.ar(snd, 20, 0.3, 0.8);
 		Out.ar(out, snd*amp * scene.vol.rain);
 	}).add;
@@ -221,7 +222,7 @@ scene.loadSdefs = {
 				mul: Decay2.kr(flashTrig, 0.05, 1) * 2 // envelope
 			);
 		flashes = flashes.softclip;
-		flashes = flashes + FreeVerb.ar(flashes, 1, 8, 0.8, mul: 0.8);
+		flashes = flashes + LPF.ar(FreeVerb.ar(flashes, 1, 8, 0.8, mul: 0.7), 800);
 		Out.ar(Latch.kr(WhiteNoise.kr, flashTrig).range(0, channels-1).round, flashes * amp * scene.vol.flashes);
 	}).add;
 }

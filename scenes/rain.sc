@@ -3,7 +3,7 @@ var scene = "/Users/bennigraf/Documents/Musik/Supercollider/memyselfandi/bp/Brod
 /*var rain = ~proto.deepCopy;*/
 
 // META
-scene.vol.rain = 0.7;
+scene.vol.rain = 0.6;
 
 scene.bootUp = { |self|
 	// set up busses, helper-sdefs, ... here
@@ -120,6 +120,7 @@ scene.loadSdefs = {
 		distmod = 0.8.rand + 0.2;
 		filtfreq = distmod.linexp(0.2, 1, 520, 2390);
 /*		snd = BPF.ar(snd, [filtfreq/2, filtfreq, filtfreq*2], [0.2, 2.5, 0.3], mul: [0.5, 1, 0.3]).sum;*/
+		snd = LPF.ar(snd, 4000);
 		snd = snd * distmod;
 	//	snd = GVerb.ar(snd, 20, 0.3, 0.8);
 		Out.ar(out, snd*amp * scene.vol.rain);

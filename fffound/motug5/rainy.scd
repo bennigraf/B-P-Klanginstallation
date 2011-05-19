@@ -75,6 +75,9 @@ a.set(\rq, 0.5.reciprocal)
 a.free
 s.scope
 
+
+
+////// USEABLE
 ~combBuf = Buffer.alloc(s, 15 * s.sampleRate);
 (
 SynthDef(\ding, { |out, amp, freq, freq2|
@@ -98,23 +101,7 @@ SynthDef(\ding, { |out, amp, freq, freq2|
 
 
 )
-
-~revbus.index
-~revbus = Bus.audio(s, 1)
-
-(
-SynthDef(\reverb, { |out = ([0,1])|
-	var rev;
-	rev = GVerb.ar(~revbus.ar, 60, 15, 0.8);
-	Out.ar(out, rev);
-}).add;
-)
-
-
-Synth(\reverb)
-//a = Synth(\ding, [\amp, 1, \freq,400, \freq2,500])  
  
-
 s.scope
 (
 p = Pbind(
@@ -127,6 +114,9 @@ p = Pbind(
 	).play
 	
 )
+p = nil
+p.stop
+
 (
 	instrument: \ding,
 	freq: 400,
@@ -136,6 +126,9 @@ p = Pbind(
 	octave: 4
 ).play
 p.free
+
+////////////////
+
 s.scope
 	
 a.free

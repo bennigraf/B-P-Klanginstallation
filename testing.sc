@@ -160,3 +160,32 @@ t.shit
 
 ~buff = Buffer.alloc(s, 44100)
 ~buff
+
+
+
+//////////////// Testing the woods!
+
+(
+var self = ();
+self.channels = 2;
+self.vol = ();
+self.vol.dings = 1;
+SynthDef(\ding, { |amp = 0, freq, freq2, combBuf|
+	var snd,snd2, combSnd, combTime, env, synth, synth2;
+	synth = VarSaw.ar([freq, freq*3.6]).sum;
+	synth2 = VarSaw.ar([freq2, freq2*1.6]).sum;
+	env = EnvGen.ar(Env.perc(0.01, 8));
+	snd = BPF.ar(synth*env, 1200, 10.reciprocal);
+	snd2 = BPF.ar(synth2*env, 9000, 10.reciprocal);
+	snd = snd + snd2;
+	snd = GVerb.ar(snd+snd2, 160, 50, 0.8).sum;
+	snd = Compander.ar(snd, snd, 0.5, 1, 1/6, 0.041, 20) * 2;
+	combTime = Rand(0.5, 1.5);
+/*		combSnd = BufCombL.ar(combBuf, snd, combTime, 10);*/
+	snd = Compander.ar(snd, snd, 0.5, 1, 1/6, 0.041, 20) * 2;
+	DetectSilence.ar(snd, 0.1, 5, doneAction:2);
+/*		Out.ar(Latch.kr(WhiteNoise.kr, Impulse.kr(1/combTime)).range(0, self.channels-1).round.poll, combSnd * amp * self.vol.dings);*/
+	Out.ar(Rand(0,self.channels-1), snd*amp * self.vol.dings);
+}).add;
+)
+c = Synth(\ding, [\amp, 1]);
