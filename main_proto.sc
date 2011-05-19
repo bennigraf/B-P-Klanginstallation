@@ -72,5 +72,6 @@ Routine({
 		lastScene.end(nil, runtimemod);
 	}
 });
+~runner.stop
 ~runner.play
 )
