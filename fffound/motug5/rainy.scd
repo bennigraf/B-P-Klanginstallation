@@ -75,19 +75,24 @@ a.set(\rq, 0.5.reciprocal)
 a.free
 s.scope
 
+~combBuf = Buffer.alloc(s, 15 * s.sampleRate);
 (
 SynthDef(\ding, { |out, amp, freq, freq2|
-	var snd,snd2, env, synth, synth2;
+	var snd,snd2, combSnd, combTime, env, synth, synth2;
 	synth = VarSaw.ar([freq, freq*3.6]).sum;
 	synth2 = VarSaw.ar([freq2, freq2*1.6]).sum;
-	env = EnvGen.ar(Env.perc(0.01, 8), doneAction:2);
+	env = EnvGen.ar(Env.perc(0.01, 8));
 	snd = BPF.ar(synth*env, 1200, 10.reciprocal);
 	snd2 = BPF.ar(synth2*env, 9000, 10.reciprocal);
 	snd = snd + snd2;
 	snd = GVerb.ar(snd+snd2, 160, 50, 0.8).sum;
 	snd = Compander.ar(snd, snd, 0.5, 1, 1/6, 0.041, 20) * 2;
-	DetectSilence.ar(snd, doneAction:2);
-	Out.ar(Rand(0,23), snd*amp);
+	combTime = Rand(0.5, 1.5);
+	combSnd = BufCombL.ar(~combBuf, snd, combTime, 10);
+	snd = Compander.ar(snd, snd, 0.5, 1, 1/6, 0.041, 20) * 2;
+	DetectSilence.ar(snd, 0.1, 5, doneAction:2);
+	Out.ar(Latch.kr(WhiteNoise.kr, Impulse.kr(1/combTime)).range(0, 1).round.poll, combSnd * amp);
+	Out.ar(Rand(0,1), snd*amp);
 }).add;
 
 
@@ -116,12 +121,20 @@ p = Pbind(
 	\instrument, \ding,
 	\freq, Pxrand([200,400,600,800,1000,1600,2000,],inf),
 	\freq2, Pxrand([300,500,700,900,1100,1300,1900,],inf),
-	\dur, Pwhite(8, 32),
+	\dur, Pwhite(8, 18),
 	\amp, Prand([0.2,0.4,0.6,0.9], inf),
 	\octave, 4
 	).play
 	
 )
+(
+	instrument: \ding,
+	freq: 400,
+	freq2: 900,
+	dur: 13,
+	amp: 0.8,
+	octave: 4
+).play
 p.free
 s.scope
 	
