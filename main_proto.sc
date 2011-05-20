@@ -1,29 +1,28 @@
 
-/*
-// testing
+
 (
-~w = (~basepath++"./scenes/thewoods.sc").load;
-~erm = nil;
+var basepath = "/Users/bennigraf/Documents/Musik/Supercollider/memyselfandi/bp/Brodukt/";
 Routine({
-	var waittime;
-	~w.haltSelf;
-	~basepath = "/Users/bennigraf/Documents/Musik/Supercollider/memyselfandi/bp/Brodukt/"; 
-	~w = (~basepath++"scenes/thecave.sc").load;
-	~w.init(2);
-	~w.bootedUp.wait;
-	~w.run(nil, 0.1);
-	waittime = ~erm.run(nil, 0.05).postln;
-	waittime.wait;
-	~w.end(nil, 0.01);
+	var runtimemod = 0.1;
+	var channels = 2;
+	var currentScene, ttl;
+	
+	var scene = "thecave";
+	("load"+scene).postln;
+	currentScene = (basepath++"scenes/"++scene++".sc").load;
+	currentScene.init(channels);
+	currentScene.bootedUp.wait;
+	
+	ttl = currentScene.run(nil, runtimemod);
+	("run for"+ttl).postln;
+	ttl.wait;
+	
+	"end".postln;
+	currentScene.end(nil, runtimemod).wait;
+	currentScene = nil;
 }).play;
-);
-~erm.buffers
-~storm.busses.flash.amp.get()
-~storm.busses.brrr.amp.get()
-~w.busses.birds.amp.set(0)
-~a = Synth(\ding);
-// /testing
-*/
+)
+
 
 
 Server.default = Server.local

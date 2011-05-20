@@ -3,7 +3,7 @@ var scene = "/Users/bennigraf/Documents/Musik/Supercollider/memyselfandi/bp/Brod
 /*var rain = ~proto.deepCopy;*/
 
 // META
-scene.vol.tock = 0.7;
+scene.vol.tock = 0.6;
 scene.vol.drops = 1;
 scene.vol.stream = 1;
 scene.vol.insect = 1;
@@ -26,9 +26,9 @@ scene.bootUp = { |self|
 	self.sdefs.drops.add( Synth(\drops, [\out, self.gdc(4, 2), \amp, 0.4, \freq, 200, \rate, 0.2, \ctlamp, 0] ) );
 	self.sdefs.drops.add( Synth(\drops, [\out, self.gdc(4, 3), \amp, 0.4, \freq, 230, \rate, 0.2, \ctlamp, 0] ) );
 	
-	self.sdefs.tock = nil;
-	self.sdefs.stream = nil;
-	self.sdefs.insect = nil;
+	self.sdefs.stream = Synth(\stream, [\ctlamp, 0]);
+	self.sdefs.insect = Synth(\insect, [\ctlamp, 0]);
+	self.server.sync;
 	
 	self.server.sync();
 
@@ -36,11 +36,17 @@ scene.bootUp = { |self|
 	self.busses = ();
 	self.busses.ctlAmp = Bus.control(self.server, 1);
 	self.server.sync();
+	self.busses.streamDynamics = Bus.control(self.server, 1);
 
 	// map busses to sdef-controls
 	self.sdefs.drops.do {|sdef|
 		sdef.map(\ctlamp, self.busses.ctlAmp);
 	};
+	self.sdefs.stream.map(\dynamicCtl, self.busses.streamDynamics);
+	[self.sdefs.stream, self.sdefs.insect].do{ |sdefs|
+		sdefs.map(\ctlamp, self.busses.ctlAmp);
+	};
+	
 	self.server.sync;
 	
 	self.bootedUp.unhang;
@@ -50,15 +56,6 @@ scene.gdc = { |self, items=2, n=1|
 	(((self.channels-1)/items)*n).round;
 };
 scene.makeCaveDefs = { |self|
-	self.sdefs.tock = Synth(\tock, [\ctlamp, 1]);
-	self.sdefs.stream = Synth(\stream, [\ctlamp, 1]);
-	self.sdefs.insect = Synth(\insect, [\ctlamp, 1]);
-	self.server.sync;
-	self.busses.streamDynamics = Bus.control(self.server, 1);
-	self.sdefs.stream.map(\dynamics, self.busses.streamDynamics);
-	[self.sdefs.tock, self.sdefs.stream, self.sdefs.insect].do{ |sdefs|
-		sdefs.map(\ctlamp, self.busses.ctlAmp);
-	};
 };
 
 scene.haltSelf = { |self|
@@ -92,8 +89,12 @@ scene.run = { |self, runtime = nil, runtimemod = 1|
 	
 	self.runner = Task({
 		self.state = "running";
+		
+		self.start(self.runtime * self.starttime, runtimemod);
 		(self.runtime * self.starttime * runtimemod).wait;
-		self.makeCaveDefs();
+		
+		self.sdefs.tock = Synth(\tock, [\ctlamp, 1]);
+		self.sdefs.tock.map(\ctlamp, self.busses.ctlAmp);
 		self.busses.ctlAmp.set(1);
 		self.sustainer = {
 			var dynamics = Line.kr(0, 1, self.runtime * self.sustime * runtimemod, doneAction: 2);
@@ -103,6 +104,17 @@ scene.run = { |self, runtime = nil, runtimemod = 1|
 	}).play;
 	
 	(self.runtime * (self.starttime + self.sustime) * runtimemod);
+};
+
+scene.start = {|self, runtime = 120, runtimemod = 1|
+	
+	self.starter = Task({
+		self.startRamp = {
+			Out.kr(self.busses.ctlAmp, Line.kr(0, 1, runtime * runtimemod, doneAction: 2));
+		}.play;
+	}).play;
+	(runtime * runtimemod);
+	
 };
 
 scene.end = { |self, runtime = nil, runtimemod = 1|
@@ -117,6 +129,8 @@ scene.end = { |self, runtime = nil, runtimemod = 1|
 		runtime.wait;
 		self.haltSelf();
 	}).play;
+	
+	runtime;
 };
 
 scene.loadSdefs = { |self|
@@ -126,7 +140,7 @@ scene.loadSdefs = { |self|
 		trig = Impulse.kr(0.08);
 		snd = SinOsc.ar([freq, freq*1.6]).sum * EnvGen.ar(Env.perc(0.001, 0.5), trig);
 		snd = BPF.ar(snd, TRand.kr(160, 250, etrig), 8.reciprocal);
-		snd = GVerb.ar(snd, 40, 5, 0.8);
+		snd = GVerb.ar(snd, 40, 5, 0.8).sum;
 		env = EnvGen.ar(Env.new([0.001,1,1,0.001], [60,20,75], 'exponential'), etrig);
 		Out.ar(TRand.kr(0, self.channels-1, trig).round, snd*amp*env * self.vol.tock * ctlamp);
 	}).add;
@@ -135,17 +149,25 @@ scene.loadSdefs = { |self|
 		var trig = Dust.ar(0.3, mul:0.7);
 		var snd = SinOsc.ar(freq * Decay.ar(trig, 1/8).linlin(0, 1, 5, 0)) ;
 		snd = snd * Decay.ar(trig, 0.1, 0.1).lag(0.05);
-		snd = GVerb.ar(snd, 60, 4, 0.8);
+		snd = GVerb.ar(snd, 60, 4, 0.8).sum;
 		Out.ar(out, snd * amp * self.vol.drops * ctlamp);
 	}).add;
 	
-	SynthDef(\stream, { |out, amp=0.0002, ctlamp = 0|
-		var snd, freq, trig;
+	SynthDef(\stream, { |out, amp=0.0002, ctlamp = 0, dynamicCtl = 1|
+		var snd, freq, trig, dynamics, dytrig;
 		trig = Dust.kr(150);
+		dytrig = Dust.kr(dynamicCtl/2);
+		dynamics = Decay2.kr(dytrig, 3, 0.5);
 		freq = TExpRand.kr(400, 1500, trig) + LFNoise2.kr(20, mul: 100);
 		snd = SinOsc.ar(freq);
-		snd = GVerb.ar(snd, 40, 0.5, 0.8);
-		Out.ar(out, snd*amp!self.channels * self.vol.stream * ctlamp);
+		snd = GVerb.ar(snd, 40, 0.5, 0.8).sum;
+		snd = snd!self.channels
+			+ PanAz.ar(self.channels, snd, 
+				TRand.kr(0, 2, dytrig).round(1/self.channels),// pos
+				dynamics/2, //lvl
+				1 //width
+			);
+		Out.ar(out, snd*amp * self.vol.stream * ctlamp);
 	}).add;
 	
 	SynthDef(\insect, { |out,amp=0.01,rel, ctlamp = 0| 
@@ -155,7 +177,7 @@ scene.loadSdefs = { |self|
 		noise2 = BPF.ar(WhiteNoise.ar(), LFNoise2.kr(2, 800, TRand.kr(2000, 5000, trig)),0.15);
 		snd = (noise1 + noise2) * SinOsc.kr(TRand.kr(4, 15, trig));
 		env = EnvGen.ar(Env.linen(TRand.kr(0.1, 0.4, trig),TRand.kr(0.3, 1.5, trig),0.1,0.6), trig) * TRand.kr(0.05, 0.3, trig);
-		snd = GVerb.ar(snd*env, 40, 8, 0.5);
+		snd = GVerb.ar(snd*env, 40, 8, 0.5).sum;
 		Out.ar(TRand.kr(0, self.channels-1, trig), snd * amp * self.vol.insect * ctlamp);
 	}).add;
 }
