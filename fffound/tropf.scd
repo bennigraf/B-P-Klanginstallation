@@ -7,7 +7,7 @@ SynthDef(\tock, { |out, amp=1, freq=140, mfreq=170|
 	snd = BPF.ar(snd, TRand.kr(160, 250, etrig), 8.reciprocal);
 	snd = GVerb.ar(snd, 40, 5, 0.8);
 	env = EnvGen.ar(Env.new([0.001,1,1,0.001], [60,20,75], 'exponential'), etrig);
-	Out.ar((Latch.ar(WhiteNoise.ar, etrig)*24), snd*amp*env);
+	Out.ar(0, snd*amp*env);
 }).add;
 )
 
@@ -28,25 +28,25 @@ SynthDef(\drops, { |out, amp, freq, rate|
 }).add;
 )
 
-Synth(\drops, [\out, 15, \amp,0.6, \freq, 400, \rate, 0.3] )
-Synth(\drops, [\out, 19,\amp,0.6, \freq, 100, \rate, 0.2] )
-Synth(\drops, [\out, 9, \amp, 0.4, \freq, 200, \rate, 0.2] )
-Synth(\drops, [\out, 12, \amp, 0.4, \freq, 230, \rate, 0.2] )
+Synth(\drops, [\out, 0, \amp,0.6, \freq, 400, \rate, 0.3] )
+Synth(\drops, [\out, 1,\amp,0.6, \freq, 100, \rate, 0.2] )
+Synth(\drops, [\out, 0, \amp, 0.4, \freq, 200, \rate, 0.2] )
+Synth(\drops, [\out, 1, \amp, 0.4, \freq, 230, \rate, 0.2] )
 
 
 
 (
-SynthDef(\stream, { |out, amp=0.0002|
+SynthDef(\stream, { |out, amp=0.001|
 	var snd, freq, trig;
 	trig = Dust.kr(150);
 	freq = TExpRand.kr(400, 1500, trig) + LFNoise2.kr(20, mul: 100);
-	snd = (SinOsc.ar(freq));
+	snd = SinOsc.ar(freq);
 	snd = GVerb.ar(snd, 40, 0.5, 0.8);
 	Out.ar(out, snd*amp!24)
 }).add;
 )
-
-Synth(\stream);
+c = Synth(\stream);
+c.set(\amp, 0.001)
 	
 
 (
@@ -64,7 +64,8 @@ SynthDef(\insect, { |out,amp=0.01,rel|
 
 
 
-Synth(\insect)
+c = Synth(\insect)
+c.set(\amp, 0.01)
 
 
 s.scope
