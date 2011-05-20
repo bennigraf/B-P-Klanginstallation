@@ -7,7 +7,7 @@ scene.vol.dels = 0.5;
 
 scene.bootUp = { |self|
 	
-	self.runtime = 480;	// kind of arbitrary:
+	self.runtime = 513;	// kind of arbitrary:
 	self.starttime = 0;	// multipliers for runtime... Routine
 	self.sustime = 1;
 	self.endtime = 0;
