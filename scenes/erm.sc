@@ -1,5 +1,5 @@
 
-var scene = "/Users/bennigraf/Documents/Musik/Supercollider/memyselfandi/bp/Brodukt/scenes/proto.sc".load;
+var scene = "/Users/bennigraf/Documents/Musik/Supercollider/memyselfandi/bp/Brodukt/scenes/_proto.sc".load;
 /*var rain = ~proto.deepCopy;*/
 
 // META
@@ -45,6 +45,7 @@ scene.haltSelf = { |self|
 		self.buffers.erms.pop.free;
 	});
 	self.pfiff.free;
+	self.buffers.silence.free;
 	self.busses.do {|bus|
 		bus.free;
 	};
@@ -156,6 +157,6 @@ scene.loadSdefs = { |self|
 		var freqmods = { LFNoise0.kr(1/30, mul: modenv**4).range(0.7, 1.3) + LFNoise1.kr(1, mul:modenv).range(0.95, 1.05)}!c;
 		snd = Ringz.ar(snd, ringfreqs * freqmods, 0.5, mul: {Decay.ar(Dust.ar(20), 0.5)}!c, add: snd * 80)/10;
 		Out.ar(0, snd * amp);
-	}).play();
+	}).add;
 }
 

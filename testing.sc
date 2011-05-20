@@ -189,3 +189,21 @@ SynthDef(\ding, { |amp = 0, freq, freq2, combBuf|
 }).add;
 )
 c = Synth(\ding, [\amp, 1]);
+
+
+
+///////////////// Testing silence
+
+b = Buffer.alloc(s, 3 * s.sampleRate)
+(
+SynthDef(\del, { |in = 0, out = 0, delay = 1, buf, amp = 1|
+	var snd = BufDelayN.ar(buf, SoundIn.ar(in), delay);
+	Out.ar(out, snd * amp * 1);
+}).play(s, [\in, 0, \out, 0, \delay, 1, \buf, b]);
+)
+
+/////////////////////
+
+Buffer.cachedBuffersDo(s, { |buf| buf.free });
+Buffer.cachedBuffersDo(s, { |buf| buf.postln });
+Bus

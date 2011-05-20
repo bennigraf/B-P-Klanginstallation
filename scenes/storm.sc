@@ -1,5 +1,5 @@
 
-var scene = "/Users/bennigraf/Documents/Musik/Supercollider/memyselfandi/bp/Brodukt/scenes/proto.sc".load;
+var scene = "/Users/bennigraf/Documents/Musik/Supercollider/memyselfandi/bp/Brodukt/scenes/_proto.sc".load;
 /*var rain = ~proto.deepCopy;*/
 
 // META
@@ -222,7 +222,7 @@ scene.loadSdefs = {
 				mul: Decay2.kr(flashTrig, 0.05, 1) * 2 // envelope
 			);
 		flashes = flashes.softclip;
-		flashes = flashes + LPF.ar(FreeVerb.ar(flashes, 1, 8, 0.8, mul: 0.7), 800);
+		flashes = flashes + LPF.ar(FreeVerb.ar(flashes, 1, 8, 0.8, mul: 0.7), 384);
 		Out.ar(Latch.kr(WhiteNoise.kr, flashTrig).range(0, channels-1).round, flashes * amp * scene.vol.flashes);
 	}).add;
 }

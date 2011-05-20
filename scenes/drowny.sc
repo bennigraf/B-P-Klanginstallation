@@ -1,11 +1,11 @@
 
-var scene = "/Users/bennigraf/Documents/Musik/Supercollider/memyselfandi/bp/Brodukt/scenes/proto.sc".load;
+var scene = "/Users/bennigraf/Documents/Musik/Supercollider/memyselfandi/bp/Brodukt/scenes/_proto.sc".load;
 /*var rain = ~proto.deepCopy;*/
 
 // META
 scene.vol.rain = 0.7;
-scene.vol.drone = 0.03;
-scene.vol.dings = 1;
+scene.vol.drone = 0.13;
+scene.vol.dings = 0.5;
 
 scene.bootUp = { |self|
 	// set up busses, helper-sdefs, ... here
@@ -45,10 +45,12 @@ scene.haltSelf = { |self|
 	while({self.sdefs.rain.size > 0}, {
 		self.sdefs.rain.pop.free;
 	});
+	self.sdefs.drone.free;
 	self.busses.rain.do {|bus|
 		bus.free;
 	};
 	self.busses.droneAmp.free;
+	self.dingBuf.free;
 	if(self.sustainer.isKindOf(Synth)) {
 		self.sustainer.free;
 	};

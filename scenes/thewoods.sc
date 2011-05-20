@@ -1,10 +1,10 @@
 
-var scene = "/Users/bennigraf/Documents/Musik/Supercollider/memyselfandi/bp/Brodukt/scenes/proto.sc".load;
+var scene = "/Users/bennigraf/Documents/Musik/Supercollider/memyselfandi/bp/Brodukt/scenes/_proto.sc".load;
 /*var rain = ~proto.deepCopy;*/
 
 // META
 scene.vol.leaves = 0.6;
-scene.vol.birds = 0.5;
+scene.vol.birds = 0.3;
 scene.vol.wood2 = 1;
 
 scene.runtime = 480;	// 8 mins
@@ -38,7 +38,7 @@ scene.bootUp = { |self|
 	self.busses.leaves.amp = Bus.control(self.server, 1);
 	self.busses.birds = ();
 	self.busses.birds.dens = Bus.control(self.server, 1);
-	self.busses.birds.amp = Bus.control(self.server, 1);
+	self.busses.birds.amp = Bus.control(self.server, 1).set(0);
 	self.busses.wood2Amp = Bus.control(self.server, 1).set(0);
 	self.server.sync();
 
@@ -67,6 +67,10 @@ scene.haltSelf = { |self|
 	};
 	self.busses.birds.do {|bus|
 		bus.free;
+	};
+	self.busses.wood2Amp.free;
+	self.birdBufs.do {|buf|
+		buf.free;
 	};
 	self.busses.wood2Amp.free;
 	self = nil;
@@ -128,7 +132,6 @@ scene.end = { |self, runtime = nil, runtimemod = 1|
 	if(runtime.isNil) {
 		runtime = self.runtime * self.endtime * runtimemod;
 	};
-	"ending".postln;
 	self.ender = Task({
 		self.endRamp = ();
 		self.endRamp.leaves = {
@@ -153,6 +156,8 @@ scene.end = { |self, runtime = nil, runtimemod = 1|
 
 scene.loadSdefs = { |self|
 	
+	self.birdBufs = List(); // hack, need to access them later to delete them again...
+	
 	SynthDef(\leaves, { |out, amp|
 		var snd, env, trig;
 		trig = Dust.ar(1/2);
@@ -173,6 +178,8 @@ scene.loadSdefs = { |self|
 		env = EnvGen.ar(Env.linen(att, elength, dec, 0.6), trig) * TRand.kr(0.1, 0.5, trig);
 		snd = env * (SinOsc.ar(PlayBuf.kr(1, envbuff, (rate*2), trig, loop:0) * 900 + [500,600] + 2000).sum);
 		Out.ar((Latch.ar(WhiteNoise.ar, trig)*self.channels).round, snd*amp * self.vol.birds);
+		
+		self.birdBufs.add(envbuff);
 	}).add;
 	
 	SynthDef(\bird2, { |amp = 0, dens = 0, densmod = 1|
@@ -188,6 +195,8 @@ scene.loadSdefs = { |self|
 		env = EnvGen.ar(Env.linen(att, elength, dec, 0.6), trig) * TRand.kr(0.1, 0.8, itrig);
 		snd = env * (SinOsc.ar(PlayBuf.kr(1, envbuff, (rate*2), trig, loop:0) * 900 + TRand.kr(900, 1300, itrig)))!2;
 		Out.ar((Latch.ar(WhiteNoise.ar, trig)*self.channels).round, snd*amp * self.vol.birds);
+		
+		self.birdBufs.add(envbuff);
 	}).add;
 	
 	SynthDef(\bird3, { |amp = 0, dens = 0, densmod = 1|
@@ -203,6 +212,8 @@ scene.loadSdefs = { |self|
 		env = EnvGen.ar(Env.linen(att, elength, dec, 0.6), trig) * TRand.kr(0.1, 0.5, trig);
 		snd = env * (SinOsc.ar(PlayBuf.kr(1, envbuff, (rate*2), trig, loop:0) * 900 + [500, 550]).sum);
 		Out.ar((Latch.ar(WhiteNoise.ar, trig)*self.channels).round, snd*amp * self.vol.birds);
+		
+		self.birdBufs.add(envbuff);
 	}).add;
 	
 	SynthDef(\bird4, { |amp = 0, dens = 0, densmod = 1|
@@ -218,6 +229,8 @@ scene.loadSdefs = { |self|
 		env = EnvGen.ar(Env.linen(att, elength, dec, 0.6), trig) * TRand.kr(0.1, 0.3, itrig);
 		snd = env * (SinOsc.ar(PlayBuf.kr(1, envbuff, (rate*2), trig, loop:0) * 900 + TRand.kr(400, 600, itrig)))!2;
 		Out.ar((Latch.ar(WhiteNoise.ar, trig)*self.channels).round, snd*amp * self.vol.birds);
+		
+		self.birdBufs.add(envbuff);
 	}).add;
 	
 	SynthDef(\bird5, { |amp = 0, dens = 0, densmod = 1|
@@ -233,6 +246,8 @@ scene.loadSdefs = { |self|
 		env = EnvGen.ar(Env.linen(att, elength, dec, 0.6), trig) * TRand.kr(0.1, 0.5, trig);
 		snd = env * (SinOsc.ar(PlayBuf.kr(1, envbuff, (rate*2), trig, loop:0) * 900 + [500,600] + 2000).sum);
 		Out.ar((Latch.ar(WhiteNoise.ar, trig)*self.channels).round, snd*amp * self.vol.birds);
+		
+		self.birdBufs.add(envbuff);
 	}).add;
 	
 	SynthDef(\bird6, { |amp = 0, dens = 0, densmod = 1|
@@ -248,6 +263,8 @@ scene.loadSdefs = { |self|
 		env = EnvGen.ar(Env.linen(att, elength, dec, 0.6), trig) * TRand.kr(0.1, 0.5, trig);
 		snd = env * (SinOsc.ar(PlayBuf.kr(1, envbuff, (rate*2), trig, loop:0) * 900 + TRand.kr(900, 1900, trig)));
 		Out.ar((Latch.ar(WhiteNoise.ar, trig)*self.channels).round, snd*amp * self.vol.birds);
+		
+		self.birdBufs.add(envbuff);
 	}).add;
 	
 	SynthDef(\bird7, { |amp = 0, freq=400, dens = 0, densmod = 1|

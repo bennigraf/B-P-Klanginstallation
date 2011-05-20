@@ -1,5 +1,5 @@
 
-var scene = "/Users/bennigraf/Documents/Musik/Supercollider/memyselfandi/bp/Brodukt/scenes/proto.sc".load;
+var scene = "/Users/bennigraf/Documents/Musik/Supercollider/memyselfandi/bp/Brodukt/scenes/_proto.sc".load;
 /*var rain = ~proto.deepCopy;*/
 
 // META
@@ -54,8 +54,6 @@ scene.bootUp = { |self|
 // get drop channels
 scene.gdc = { |self, items=2, n=1|
 	(((self.channels-1)/items)*n).round;
-};
-scene.makeCaveDefs = { |self|
 };
 
 scene.haltSelf = { |self|
