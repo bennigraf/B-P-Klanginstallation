@@ -206,4 +206,40 @@ SynthDef(\del, { |in = 0, out = 0, delay = 1, buf, amp = 1|
 
 Buffer.cachedBuffersDo(s, { |buf| buf.free });
 Buffer.cachedBuffersDo(s, { |buf| buf.postln });
-Bus
+Server
+
+
+~tmpBus = Bus.audio(s, 10);
+
+~tmpS = { 
+	var snd = ~tmpBus.ar.sum;
+	Out.ar(0, snd!2) }.play
+~tmpS.free
+
+(
+SynthDef(\bass, { |amp=1, freq, trig, sus, bassAmp|
+	var snd, env;
+	env = EnvGen.ar(Env.perc(0.04, sus), doneAction:2) + EnvGen.kr(Env.perc(0.02, 0.1));
+	snd = SinOsc.ar(freq) * SinOsc.ar(2).range(0.8,1) * env;
+	snd = snd.round(0.5**6);
+	
+/*	snd = snd.clip2(MouseY.kr(1, 0.5));*/	
+	snd = (snd*0.26).softclip;
+	snd = RLPF.ar(snd, [188, 155], 0.1).sum/2;
+	Out.ar(0, snd*amp!2)
+}).add;
+)
+~p.stop
+(
+~p = Pbind(
+	\instrument, \bass,
+	\scale, Scale.minor,
+	\degree, Pseq([Pseq([7, \, 7, \, \, \, \, 4, \, \, 4, \, \, \, \, \]),
+				Pseq([7, \, 7, \, \, \, \, 4, \, \, 4, \, \, 6, \, \])], inf),
+	\mtranspose, -3,
+	\octave, 3,
+	\dur, Pseq([1/4], inf),
+	\sus, Pseq([Pseq([1.5, \, 3, \, \, \, \, 1.5, \, \, 3.5, \, \, \, \, \]),
+			   Pseq([1.5, \, 3, \, \, \, \, 1.5, \, \, 1.2, \, \, 2, \, \])], inf)
+).play(quant:4);
+)

@@ -3,11 +3,11 @@
 (
 var basepath = "/Users/bennigraf/Documents/Musik/Supercollider/memyselfandi/bp/Brodukt/";
 Routine({
-	var runtimemod = 0.05;
-	var channels = 2;
+	var runtimemod = 0.3;
+	var channels = 10;
 	var currentScene, ttl;
 	
-	var scene = "thewoods";
+	var scene = "tagammeer";
 	("load"+scene).postln;
 	currentScene = (basepath++"scenes/"++scene++".sc").load;
 	currentScene.init(channels);
@@ -39,16 +39,18 @@ s.boot
 	\rain, #[1, 2, 3, 4, 5, 6],
 // State 1: Drowny rain
 	\drowny, #[2, 3, 4, 5, 6],
-// State 2:
+// State 2: Storm
 	\storm, #[0, 3, 4, 5, 6],
-// State 3:
-	\thewoods, #[0, 1, 2, 4, 5, 6],
-// State 4:
-	\erm, #[0, 1, 2, 3, 5, 6],
-// State 5:
-	\thecave, #[0, 1, 3, 4, 6],
-// State 6:
-	\833, #[0, 1, 2, 3, 4, 5]
+// State 3: Thewoods
+	\thewoods, #[0, 1, 2, 4, 5, 6, 7],
+// State 4: Aehm...
+	\erm, #[0, 1, 2, 3, 5, 6, 7],
+// State 5: The Cave
+	\thecave, #[0, 1, 3, 4, 6, 7],
+// State 6: 8_33
+	\833, #[0, 1, 2, 3, 4, 5, 7],
+// State 7: Tag am Meer
+	\tagammeer, #[2, 5, 6]
 ]).asStream;
 
 )

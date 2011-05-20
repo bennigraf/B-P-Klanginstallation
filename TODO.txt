@@ -1,13 +1,13 @@
 
 
 // Scenes
- * 4'33 (eher 8'21 oder so)
- * thecave
-	* zeug wird nicht vernünftig releaset
+x * 4'33 (eher 8'21 oder so)
+x * thecave
+x	* zeug wird nicht vernünftig releaset
  * cafe?
- * les drones zu rain dazu
+x * les drones zu rain dazu
 	* drones werden nicht vernünftig releaset
- * was ruhiges, entspannendes?
+x * was ruhiges, entspannendes?
 
 // Bugfix:
  * wood2-synth distortion
@@ -16,4 +16,4 @@
 
 
 // Sonstiges
- * Matreial-Ausleihliste
+x * Matreial-Ausleihliste
