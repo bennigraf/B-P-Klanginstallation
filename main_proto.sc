@@ -8,10 +8,10 @@ Routine({
 	var waittime;
 	~w.haltSelf;
 	~basepath = "/Users/bennigraf/Documents/Musik/Supercollider/memyselfandi/bp/Brodukt/"; 
-	~w = (~basepath++"scenes/drowny.sc").load;
+	~w = (~basepath++"scenes/thecave.sc").load;
 	~w.init(2);
 	~w.bootedUp.wait;
-	~w.run(nil, 0.051);
+	~w.run(nil, 0.1);
 	waittime = ~erm.run(nil, 0.05).postln;
 	waittime.wait;
 	~w.end(nil, 0.01);
@@ -36,15 +36,17 @@ s.boot
 ~states = Pfsm([
 	#[0],		// initial state
 // State 0: Rain
-	\rain, #[0, 1, 2, 3],
+	\rain, #[1, 2, 3, 4, 5],
 // State 1: Drowny rain
-	\drowny, 
-// State 1:
-	\storm, #[0, 2, 3],
+	\drowny, #[2, 3, 4, 5],
 // State 2:
-	\thewoods, #[0, 1, 3],
+	\storm, #[0, 3, 4, 5],
 // State 3:
-	\erm, #[0, 1, 2]
+	\thewoods, #[0, 1, 2, 4, 5],
+// State 4:
+	\erm, #[0, 1, 2, 3, 5],
+// State 5:
+	\thecave, #[0, 1, 3, 4]
 ]).asStream;
 
 )
@@ -55,10 +57,12 @@ s.boot
 ~scenes.put(\storm, "storm");
 ~scenes.put(\erm, "erm");
 ~scenes.put(\thewoods, "thewoods");
+~scenes.put(\thecave, "thecave");
+~scenes.put(\drowny, "drowny");
 ) 
 (
 ~runner = Task({
-	var runtimemod = 0.25;
+	var runtimemod = 0.05;
 	var channels = 10;
 	var currentScene = nil, lastScene = nil;
 	inf.do{

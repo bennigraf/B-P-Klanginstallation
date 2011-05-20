@@ -78,8 +78,8 @@ scene.run = { |self, runtime = nil, runtimemod = 1|
 		self.sustainer.mod = 0;
 		self.sustainer.ctrlr = Task({
 			var sustime = self.runtime * self.sustime * runtimemod;
-			3141.do { |step|
-				var osc = (step/1000).sin; // sin-wave from 0 to 1 to 0 (phase 0..pi) during sustime
+			(3141*2).do { |step|
+				var osc = ((step/1000)-(pi/2)).sin + 1 / 2; // sin-wave from 0 to 1 to 0 (phase 0..pi) during sustime	
 				var waitmin, waitmax;
 				var range;
 				
@@ -89,7 +89,7 @@ scene.run = { |self, runtime = nil, runtimemod = 1|
 				
 				self.sustainer.mod = osc;
 				
-				(sustime/3141).wait;
+				(sustime/(3141*2)).wait;
 			}
 		}).play;
 		self.sustainer.task = Task({

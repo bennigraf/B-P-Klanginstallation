@@ -3,8 +3,10 @@
 // Scenes
  * 4'33 (eher 8'21 oder so)
  * thecave
+	* zeug wird nicht vernünftig releaset
  * cafe?
  * les drones zu rain dazu
+	* drones werden nicht vernünftig releaset
  * was ruhiges, entspannendes?
 
 // Bugfix:
