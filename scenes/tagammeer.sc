@@ -77,7 +77,6 @@ scene.haltSelf = { |self|
 	self.buffers.do{|buffer|
 		buffer.free;
 	};
-	
 	self.busses.do{|bus|
 		bus.free;
 	};
@@ -196,11 +195,12 @@ scene.end = { |self, runtime = nil, runtimemod = 1|
 	
 	self.ender = Task({
 		{
-			Out.kr(self.busses.bassAmp, Line.kr(1, 0, runtime, doneAction: 2));
-			Out.kr(self.busses.rhodesAmp, Line.kr(1, 0, runtime, doneAction: 2));
-			Out.kr(self.busses.wavesAmp, Line.kr(1, 0, runtime, doneAction: 2));
-			Out.kr(self.busses.tickAmp, Line.kr(1, 0, runtime, doneAction: 2));
-			Out.kr(self.busses.tikikAmp, Line.kr(1, 0, runtime, doneAction: 2));
+			var sig = Line.kr(1, 0, runtime, doneAction: 2);
+			Out.kr(self.busses.bassAmp, sig);
+			Out.kr(self.busses.rhodesAmp, sig);
+			Out.kr(self.busses.wavesAmp, sig);
+			Out.kr(self.busses.tickAmp, sig);
+			Out.kr(self.busses.tikikAmp, sig);
 		}.play;
 		runtime.wait;
 		self.haltSelf();

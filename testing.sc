@@ -222,10 +222,9 @@ SynthDef(\bass, { |amp=1, freq, trig, sus, bassAmp|
 	env = EnvGen.ar(Env.perc(0.04, sus), doneAction:2) + EnvGen.kr(Env.perc(0.02, 0.1));
 	snd = SinOsc.ar(freq) * SinOsc.ar(2).range(0.8,1) * env;
 	snd = snd.round(0.5**6);
-	
-/*	snd = snd.clip2(MouseY.kr(1, 0.5));*/	
-	snd = (snd*0.26).softclip;
+	snd = snd.clip2(MouseY.kr(2, 0.2));
 	snd = RLPF.ar(snd, [188, 155], 0.1).sum/2;
+	snd = (snd*0.26).softclip;
 	Out.ar(0, snd*amp!2)
 }).add;
 )
