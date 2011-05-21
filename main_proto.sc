@@ -64,6 +64,7 @@ s.boot
 ~scenes.put(\thecave, "thecave");
 ~scenes.put(\drowny, "drowny");
 ~scenes.put(\833, "8_33");
+~scenes.put(\tagammeer, "tagammeer");
 ) 
 (
 ~runner = Task({
