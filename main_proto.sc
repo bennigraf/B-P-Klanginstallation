@@ -22,7 +22,7 @@
 
 
 (
-var basepath = "/Users/bgraf/Desktop/B-P-Klanginstallation/";
+var basepath = "/Users/bennigraf/Documents/Musik/Supercollider/memyselfandi/bp/Brodukt/";
 Routine({
 	var runtimemod = 0.3;
 	var channels = 10;
@@ -63,7 +63,7 @@ s.volume.volume = -17
 s.volume.gui
 
 
-~basepath = "/Users/bgraf/Desktop/B-P-Klanginstallation/";
+~basepath = "/Users/bennigraf/Documents/Musik/Supercollider/memyselfandi/bp/Brodukt/";
 
 
 (
