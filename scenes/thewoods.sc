@@ -1,10 +1,10 @@
 
-var scene = "/Users/bennigraf/Documents/Musik/Supercollider/memyselfandi/bp/Brodukt/scenes/_proto.sc".load;
+var scene = "/Users/bgraf/Desktop/B-P-Klanginstallation/scenes/_proto.sc".load;
 /*var rain = ~proto.deepCopy;*/
 
 // META
 scene.vol.leaves = 0.6;
-scene.vol.birds = 0.3;
+scene.vol.birds = 0.25;
 scene.vol.wood2 = 1;
 
 scene.runtime = 480;	// 8 mins

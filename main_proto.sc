@@ -1,7 +1,28 @@
 
+(
+~states = Pfsm([
+	#[0],		// initial state
+// State 0
+	\833, #[0]
+]).asStream;
+
+)
+(
+~states = Pfsm([
+	#[0],		// initial state
+// State 0
+	\tagammeer, #[0]
+]).asStream;
+
+)
+
+~states.next
+
+
+
 
 (
-var basepath = "/Users/bennigraf/Documents/Musik/Supercollider/memyselfandi/bp/Brodukt/";
+var basepath = "/Users/bgraf/Desktop/B-P-Klanginstallation/";
 Routine({
 	var runtimemod = 0.3;
 	var channels = 10;
@@ -25,11 +46,24 @@ Routine({
 
 
 
-Server.default = Server.local
-s.options.device = "Digidesign HW ( 003 )";
-s.boot
+s.options.numControlBusChannels
+s.options.numAudioBusChannels
+ServerOptions.inDevices
+s.options.device
 
-~basepath = "/Users/bennigraf/Documents/Musik/Supercollider/memyselfandi/bp/Brodukt/";
+
+Server.default = Server.local
+s.options.outDevice = "Digidesign HW ( 003 )";
+s.options.inDevice = "Built-in Microphone";
+s.options.numOutputBusChannels = 10
+s.options.memSize = 2 ** 17
+s.quit
+s.boot
+s.volume.volume = -17
+s.volume.gui
+
+
+~basepath = "/Users/bgraf/Desktop/B-P-Klanginstallation/";
 
 
 (
@@ -42,15 +76,15 @@ s.boot
 // State 2: Storm
 	\storm, #[0, 3, 4, 5, 6],
 // State 3: Thewoods
-	\thewoods, #[0, 1, 2, 4, 5, 6, 7],
+	\thewoods, #[0, 1, 2, 4, 5, 7],
 // State 4: Aehm...
-	\erm, #[0, 1, 2, 3, 5, 6, 7],
+	\erm, #[0, 1, 2, 3, 5, 7],
 // State 5: The Cave
-	\thecave, #[0, 1, 3, 4, 6, 7],
+	\thecave, #[0, 1, 3, 4],
 // State 6: 8_33
 	\833, #[0, 1, 2, 3, 4, 5, 7],
 // State 7: Tag am Meer
-	\tagammeer, #[2, 5, 6]
+	\tagammeer, #[0, 1, 2, 5, 1, 0]
 ]).asStream;
 
 )
@@ -68,8 +102,8 @@ s.boot
 ) 
 (
 ~runner = Task({
-	var runtimemod = 0.05;
-	var channels = 2;
+	var runtimemod = 0.7;
+	var channels = 10;
 	var currentScene = nil, lastScene = nil;
 	inf.do{
 		var state = ~states.next;
@@ -98,3 +132,14 @@ s.boot
 )
 
 ~runner.stop
+
+
+
+Task({
+	var vol = -17;
+	1000.do{ |n|
+		s.volume.volume = vol;
+		vol = vol - 0.2;
+		0.3.wait;
+	}
+}).play

@@ -1,13 +1,14 @@
 
-var scene = "/Users/bennigraf/Documents/Musik/Supercollider/memyselfandi/bp/Brodukt/scenes/_proto.sc".load;
+var scene = "/Users/bgraf/Desktop/B-P-Klanginstallation/scenes/_proto.sc".load;
 
 // META
 scene.vol.silence = 1;
-scene.vol.dels = 0.5;
+scene.vol.dels = 0.3;
 
 scene.bootUp = { |self|
-	
-	self.runtime = 513;	// kind of arbitrary:
+	var outs = List(), i = 0;
+
+	self.runtime = 313;	// kind of arbitrary:
 	self.starttime = 0;	// multipliers for runtime... Routine
 	self.sustime = 1;
 	self.endtime = 0;
@@ -21,8 +22,21 @@ scene.bootUp = { |self|
 	// set up busses, helper-sdefs, ... here
 	self.sdefs = List();
 	self.channels.do{ |n|
-		self.sdefs.add(Synth(\delay, [\in, 0, \out, n, \delay, 1 + (0.1 * n), \buf, self.buffers[n], \amp, 0]));
+		outs.add(n);
 	};
+	while({outs.size > 0}, {
+		var delay = (1 + (0.1 * i));
+		var outindex = outs.size.rand;
+		var out = outs[outindex];
+		outs.removeAt(outindex);
+		self.sdefs.add(Synth(\delay, [\in, 0, \out, out, \delay, delay, \buf, self.buffers[i], \amp, 0]));
+		i = i + 1;
+	});
+	
+	i = nil;
+	outs = nil;
+	
+	
 	self.server.sync();
 
 	// init controlling buses

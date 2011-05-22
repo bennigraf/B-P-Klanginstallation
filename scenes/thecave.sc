@@ -1,12 +1,12 @@
 
-var scene = "/Users/bennigraf/Documents/Musik/Supercollider/memyselfandi/bp/Brodukt/scenes/_proto.sc".load;
+var scene = "/Users/bgraf/Desktop/B-P-Klanginstallation/scenes/_proto.sc".load;
 /*var rain = ~proto.deepCopy;*/
 
 // META
-scene.vol.tock = 0.6;
-scene.vol.drops = 1;
-scene.vol.stream = 1;
-scene.vol.insect = 1;
+scene.vol.tock = 0.7;
+scene.vol.drops = 1.7;
+scene.vol.stream = 2.8;
+scene.vol.insect = 5;
 
 
 scene.bootUp = { |self|
@@ -170,7 +170,7 @@ scene.loadSdefs = { |self|
 	
 	SynthDef(\insect, { |out,amp=0.01,rel, ctlamp = 0| 
 		var env,noise1,noise2,snd,trig;
-		trig = Dust.kr(0.04);
+		trig = Dust.kr(0.1);
 		noise1 = BPF.ar(WhiteNoise.ar(), LFNoise2.kr(2, 800, TRand.kr(2000, 5000, trig)),0.2);
 		noise2 = BPF.ar(WhiteNoise.ar(), LFNoise2.kr(2, 800, TRand.kr(2000, 5000, trig)),0.15);
 		snd = (noise1 + noise2) * SinOsc.kr(TRand.kr(4, 15, trig));

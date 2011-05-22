@@ -1,26 +1,23 @@
 
-var scene = "/Users/bennigraf/Documents/Musik/Supercollider/memyselfandi/bp/Brodukt/scenes/_proto.sc".load;
+var scene = "/Users/bgraf/Desktop/B-P-Klanginstallation/scenes/_proto.sc".load;
 
 // META
-scene.vol.meer = 1;
-scene.vol.bass = 1;
-scene.vol.rhodes = 1;
-scene.vol.snare = 0.8;
+scene.vol.meer = 1.1;
+scene.vol.bass = 0.4;
+scene.vol.rhodes = 1.1;
+scene.vol.snare = 1.2;
 scene.vol.tikik = 1;
 
 scene.bootUp = { |self|
-	"booting stuff up".postln;
 	self.runtime = 600;	// kind of arbitrary:
 	self.starttime = 2/10;	// multipliers for runtime... Routine
 	self.sustime = 5/10;
 	self.endtime = 3/10;
 	
-	"setting buffers".postln;
 	self.buffers = ();
 	self.buffers.tikik = Buffer.alloc(s,44100*15,1);
 	self.server.sync();
 	
-	"setting sdefs".postln;
 	// set up busses, helper-sdefs, ... here
 	self.sdefs = ();
 	self.sdefs.waves = List();
@@ -40,7 +37,6 @@ scene.bootUp = { |self|
 	*/
 	self.server.sync();
 	
-	"some busses".postln;
 	// init controlling buses
 	self.busses = ();
 	self.busses.wavesAmp = Bus.control(self.server, 1);
@@ -51,10 +47,8 @@ scene.bootUp = { |self|
 	self.busses.bassAmp = Bus.control(self.server, 1);
 	self.server.sync();
 	
-	"tikikikik".postln;
 	self.sdefs.tikik = Synth(\tikikikik, [\echoBus, self.busses.tikik, \combBuf, self.buffers.tikik, \amp, 0]);
 	
-	"map busses".postln;
 	// map busses to sdef-controls
 	self.sdefs.waves.do{ |sdef|
 		sdef.map(\amp,  self.busses.wavesAmp);
@@ -62,7 +56,6 @@ scene.bootUp = { |self|
 	self.sdefs.tikik.map(\amp, self.busses.tikikAmp);
 	self.server.sync;
 	
-	"done booting!".postln;
 	self.bootedUp.unhang;
 };
 scene.haltSelf = { |self|
@@ -96,22 +89,18 @@ scene.run = { |self, runtime = nil, runtimemod = 1|
 		3. Bass + Rhodes kick in
 		4. end: everything fades out
 	*/
-	"running...".postln;
 	self.runner = Task({
 		var runtime;
 		
 		self.state = "running";
-		"starting stuff".postln;
 		self.start(self.runtime * self.starttime, runtimemod);
 		(self.runtime * self.starttime * runtimemod).wait;
 		
 		runtime = self.runtime * self.sustime * runtimemod;
 		self.sustainer = ();
-		"tiktik sustainer".postln;
 		self.sustainer.tikik = {
 			Out.kr(self.busses.tikikAmp, Line.kr(0, 1, runtime * (1/5), doneAction: 2));
 		}.play;
-		"tick pbind".postln;
 		self.sustainer.tick = Pbind(
 			\instrument, \ticketick,
 			\amp, Pseq([0, 0.7, 0, 0.2], inf),
@@ -122,26 +111,23 @@ scene.run = { |self, runtime = nil, runtimemod = 1|
 		
 		(runtime * (1/5)).wait;
 		
-		"tik and bass to 1".postln;
 		self.busses.tickAmp.set(1);
 		self.busses.bassAmp.set(1);
-		"bass pbind".postln;
 		self.sustainer.bass = Pbind(
 			\instrument, \bass,
 			\scale, Scale.minor,
 			\degree, Pseq([Pseq([7, \, 7, \, \, \, \, 4, \, \, 4, \, \, \, \, \]),
-						Pseq([7, \, 7, \, \, \, \, 4, \, \, 4, \, \, 6, \, \])], inf),
+						Pseq([7, \, 7, \, \, \, \, 4, \, \, 4, \, \, Prand([6, 6, 9], 1), \, \])], inf),
 			\mtranspose, -3,
 			\octave, 3,
 			\dur, Pseq([1/4], inf),
 			\sus, Pseq([Pseq([1.5, \, 3, \, \, \, \, 3, \, \, 3.5, \, \, \, \, \]),
 					   Pseq([1.5, \, 3, \, \, \, \, 3, \, \, 3.5, \, \, 2, \, \])], inf),
-			\ampBus, self.busses.bassAmp
+			\bassAmp, self.busses.bassAmp,
+			\amp, 1
 		).play(quant:4);
 		
-		"rhodesAmp 1".postln;
 		self.busses.rhodesAmp.set(1);
-		"rhodes pdbind".postln;
 		self.sustainer.rhodes = Pbind(
 			\instrument, \rhodes,
 			\scale, Scale.minor,
@@ -180,7 +166,6 @@ scene.run = { |self, runtime = nil, runtimemod = 1|
 
 scene.start = {|self, runtime = 120, runtimemod = 1|
 	self.startRamp = ();
-	"start ramp".postln;
 	self.startRamp.waves = {
 		Out.kr(self.busses.wavesAmp, Line.kr(0, 1, runtime * runtimemod, doneAction: 2));
 	}.play;
@@ -232,7 +217,7 @@ scene.loadSdefs = { |self|
 		snd = snd.clip2(MouseY.kr(2, 0.2));
 		snd = RLPF.ar(snd, [188, 155], 0.1).sum/2;
 		snd = (snd*0.26).softclip;
-		Out.ar(0, snd*env*amp * In.kr(bassAmp) * self.vol.bass!self.channels)
+		Out.ar(0, snd*env*amp * /*In.kr(bassAmp)*/ self.vol.bass!self.channels)
 	}).add;
 	
 	SynthDef(\ticketick, { |out, amp=1, trig, echoAmp = 0.5, echoBus, ampBus|
@@ -242,18 +227,20 @@ scene.loadSdefs = { |self|
 			snd = RHPF.ar(snd, 1204, 0.12);
 			snd = FreeVerb.ar(snd, 0.5, 0.8, 0.3);
 			EnvGen.kr(Env.perc(1, 4), doneAction: 2);
-			Out.ar(TIRand.kr(0, self.channels, trig), snd*amp * In.kr(ampBus) * self.vol.snare);
+			Out.ar(TIRand.kr(0, self.channels-1, trig), snd*amp * In.kr(ampBus) * self.vol.snare);
 			Out.ar(echoBus, snd * echoAmp * amp);
 	}).add;
 	
 	SynthDef(\tikikikik, { |in, amp = 1, echoBus, combBuf|
 			var snd, buf, trig;
 			snd = In.ar(echoBus);
-			snd = snd + BufCombC.ar(combBuf, snd, LFNoise2.kr(1/7.6).range(0.2475, 0.25), 15);
+			snd = snd + BufCombC.ar(combBuf, snd, LFNoise2.kr(1/7.6).range(0.245, 0.25), 15);
 			snd = RHPF.ar(snd, SinOsc.kr(0.05).range(5000, 10000), 0.1);
 //			snd = GVerb.ar(snd, 40, 2).sum;
+			snd = snd * (1-EnvGen.kr(Env.perc(2, 4), Dust.kr(0.04)));
 			snd = PanAz.ar(self.channels, snd, LFNoise2.ar(0.1), 1, 4);
-			Out.ar(0, snd * amp * (1-Decay2.kr(Dust.kr(0.031), 2, 2, mul: 0.77)) * self.vol.tikik);
+//			Out.ar(0, snd * amp * (1-Decay2.ar(Impulse.ar(0.1), 0.01, 0.1, mul: 0.77)).poll * self.vol.tikik);
+			Out.ar(0, snd * amp * self.vol.tikik);
 	}).add;
 	
 }

@@ -1,11 +1,11 @@
 
-var scene = "/Users/bennigraf/Documents/Musik/Supercollider/memyselfandi/bp/Brodukt/scenes/_proto.sc".load;
+var scene = "/Users/bgraf/Desktop/B-P-Klanginstallation/scenes/_proto.sc".load;
 /*var rain = ~proto.deepCopy;*/
 
 // META
-scene.vol.rain = 0.7;
-scene.vol.drone = 0.13;
-scene.vol.dings = 0.5;
+scene.vol.rain = 0.5;
+scene.vol.drone = 0.05;
+scene.vol.dings = 0.1;
 
 scene.bootUp = { |self|
 	// set up busses, helper-sdefs, ... here
@@ -164,7 +164,7 @@ scene.loadSdefs = { |self|
 	}).add;
 	
 	SynthDef(\ding, { |amp = 0, freq = 200, freq2 = 300, combBuf|
-		var snd,snd2, combSnd, combTime, env, synth, synth2;
+		var snd,snd2, combSnd, combTime, env, synth, synth2, out;
 		synth = VarSaw.ar([freq, freq*3.6]).sum;
 		synth2 = VarSaw.ar([freq2, freq2*1.6]).sum;
 		env = EnvGen.ar(Env.perc(0.01, 8));
@@ -176,8 +176,9 @@ scene.loadSdefs = { |self|
 		combTime = Rand(0.5, 1.5);
 		combSnd = BufCombL.ar(combBuf, snd, combTime, 10);
 		snd = Compander.ar(snd, snd, 0.5, 1, 1/6, 0.041, 20) * 2;
-		Out.ar(TRand.kr(0, self.channels-1, Impulse.kr(1/combTime)).round, combSnd * amp * self.vol.dings);
-		Out.ar(Rand(0,self.channels-1), snd * amp * self.vol.dings);
+		out = Rand(0,self.channels-1);
+		Out.ar(out, combSnd * amp * self.vol.dings);
+		Out.ar(out, snd * amp * self.vol.dings);
 		DetectSilence.ar(snd, 0.1, 5, doneAction:2);
 	}).add;
 	
