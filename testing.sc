@@ -242,3 +242,15 @@ SynthDef(\bass, { |amp=1, freq, trig, sus, bassAmp|
 			   Pseq([1.5, \, 3, \, \, \, \, 1.5, \, \, 1.2, \, \, 2, \, \])], inf)
 ).play(quant:4);
 )
+
+Quarks.gui
+Fb
+
+
+
+"main_proto.sc".resolveRelative
+
+thisProcess.executingPath
+Document.current.dump
+
+Document.current.thisdoc

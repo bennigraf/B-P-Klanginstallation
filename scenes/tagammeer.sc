@@ -206,15 +206,16 @@ scene.loadSdefs = { |self|
 			snd = SinOsc.ar(freq, mul: 0.2) * SinOsc.ar(16).range(0.8,1);
 			env = EnvGen.ar(Env.perc(0.05, 2), doneAction:2);
 //			snd = snd/2 + GVerb.ar(snd/2, 40, 2, 0.8, earlyreflevel: 0,taillevel:1).sum;
-			Out.ar(TIRand.kr(0,self.channels-1,speakertrig), Pan2.ar(snd*env*amp * In.kr(ampBus) * self.vol.rhodes, SinOsc.kr(4)) );
+			Out.ar(TIRand.kr(0,self.channels-2,speakertrig), Pan2.ar(snd*env*amp * In.kr(ampBus) * self.vol.rhodes, SinOsc.kr(4)) );
 	}).add;
 	
 	SynthDef(\bass, { |out, amp=1, freq, trig, sus, bassAmp|
 		var snd, env;
 		env = EnvGen.ar(Env.perc(0.04, sus), doneAction:2) + EnvGen.kr(Env.perc(0.02, 0.1));
-		snd = SinOsc.ar(freq) * SinOsc.ar(2).range(0.8,1) * env;
+		snd = SinOsc.ar([freq, freq*2, freq * 3, freq * 3.5]).sum/3 * SinOsc.ar(2).range(0.8,1) * env;
 		snd = snd.round(0.5**6);
-		snd = snd.clip2(MouseY.kr(2, 0.2));
+		snd = snd.clip2(LFNoise1.ar(0.2, 0.5, 1/13));
+		snd = LPF.ar(snd, 220);
 		snd = RLPF.ar(snd, [188, 155], 0.1).sum/2;
 		snd = (snd*0.26).softclip;
 		Out.ar(0, snd*env*amp * /*In.kr(bassAmp)*/ self.vol.bass!self.channels)
@@ -238,7 +239,7 @@ scene.loadSdefs = { |self|
 			snd = RHPF.ar(snd, SinOsc.kr(0.05).range(5000, 10000), 0.1);
 //			snd = GVerb.ar(snd, 40, 2).sum;
 			snd = snd * (1-EnvGen.kr(Env.perc(2, 4), Dust.kr(0.04)));
-			snd = PanAz.ar(self.channels, snd, LFNoise2.ar(0.1), 1, 4);
+			snd = PanAz.ar(self.channels, snd, LFNoise2.ar(0.051), 1, 4);
 //			Out.ar(0, snd * amp * (1-Decay2.ar(Impulse.ar(0.1), 0.01, 0.1, mul: 0.77)).poll * self.vol.tikik);
 			Out.ar(0, snd * amp * self.vol.tikik);
 	}).add;

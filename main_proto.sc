@@ -102,8 +102,8 @@ s.volume.gui
 ) 
 (
 ~runner = Task({
-	var runtimemod = 0.7;
-	var channels = 10;
+	var runtimemod = 0.1;
+	var channels = 2;
 	var currentScene = nil, lastScene = nil;
 	inf.do{
 		var state = ~states.next;
